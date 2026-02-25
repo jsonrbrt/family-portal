@@ -39,6 +39,17 @@ const uploadPhoto = async(req, res) => {
             return res.status(400).json({ message: 'Caption must be less than 500 characters' });
         }
 
+        // Validate albumId if provided
+        if (albumId) {
+            const album = await Album.findById(albumId);
+            if (!album) {
+                return res.status(400).json({ message: "Album not found" });
+            }
+            if (album.family.toString() !== req.user.family._id.toString()) {
+                return res.status(403).json({ message: "This album does not belong to your family" });
+            }
+        }
+
         // Upload to Cloudinary
         const result = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(

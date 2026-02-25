@@ -32,10 +32,18 @@ const generalLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-const authLimiter = rateLimit({
+const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
   message: "Too many login attempts, please try again in 15 minutes.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: "Too many registration attempts, please try again in 15 minutes.",
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -55,8 +63,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Apply rate limiters
 app.use("/api", generalLimiter);
-app.use("/api/auth/login", authLimiter);
-app.use("/api/auth/register", authLimiter);
+app.use("/api/auth/login", loginLimiter);
+app.use("/api/auth/register", registerLimiter);
 app.use("/api/documents/upload", uploadLimiter);
 app.use("/api/photos/upload", uploadLimiter);
 

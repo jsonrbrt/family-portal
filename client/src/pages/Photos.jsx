@@ -119,8 +119,6 @@ function Photos() {
       formData.append("name", uploadData.name);
       formData.append("description", uploadData.description);
       formData.append("tags", uploadData.tags);
-      formData.append("albumId", uploadData.albumId);
-
       // Only append albumId if it's selected
       if (uploadData.albumId) {
         formData.append("albumId", uploadData.albumId);
