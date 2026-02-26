@@ -7,26 +7,55 @@ import {
   People as PeopleIcon,
 } from "@mui/icons-material";
 import Layout from "../components/Layout";
+import api from '../services/api';
+import { useState, useEffect } from "react";
 
 function Dashboard() {
   const { user } = useAuth();
+  const [counts, setCounts] = useState({
+    documents: 0,
+    photos: 0,
+    albums: 0
+  });
+
+  useEffect(() => {
+    fetchCounts();
+  }, []);
+
+  const fetchCounts = async () => {
+    try {
+        const [docsRes, photosRes, albumsRes] = await Promise.all([
+            api.get('/documents'),
+            api.get('/photos'),
+            api.get('/albums')
+        ]);
+
+        setCounts({
+            documents: docsRes.data.length,
+            photos: photosRes.data.length,
+            albums: albumsRes.data.length
+        });
+    } catch (err) {
+        console.error("Failed to fetch counts:", err);
+    }
+  };
 
   const stats = [
     {
       title: "Documents",
-      count: "---",
+      count: counts.documents,
       icon: <DescriptionIcon />,
       color: "#1976d2",
     },
     {
       title: "Photos",
-      count: "---",
+      count: counts.photos,
       icon: <PhotoIcon />,
       color: "#dc004e",
     },
     {
       title: "Albums",
-      count: "---",
+      count: counts.albums,
       icon: <AlbumIcon />,
       color: "#9c27b0",
     },
