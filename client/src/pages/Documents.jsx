@@ -60,6 +60,14 @@ function Documents() {
     tags: "",
   });
 
+  const allowedTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/jpeg',
+    'image/png'
+  ];
+
   // Fetch documents
   const fetchDocuments = async () => {
     try {
@@ -115,6 +123,11 @@ function Documents() {
     const file = e.target.files[0];
     console.log("File selected:", file);
     if (file) {
+      if (!allowedTypes.includes(file.type)) {
+        setError("Invalid file type. Only PDF, DOC, DOCX, JPG, and PNG allowed.");
+        e.target.value = '';
+        return;
+      }
       setUploadData({
         ...uploadData,
         file,
@@ -132,21 +145,6 @@ function Documents() {
     // Validate filze size (max. 10MB)
     if (uploadData.file.size > 10 * 1024 * 1024) {
       setError("File size must be less than 10MB");
-      return;
-    }
-
-    // Validate file type
-    const allowedTypes = [
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "image/jpeg",
-      "image/png",
-    ];
-    if (!allowedTypes.includes(uploadData.file.type)) {
-      setError(
-        "Invalid file type. Only PDF, DOC, DOCX, JPG, JPEG, and PNG allowed.",
-      );
       return;
     }
 
@@ -405,6 +403,11 @@ function Documents() {
       >
         <DialogTitle>Upload Document</DialogTitle>
         <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+              {error}
+            </Alert>
+          )}
           <Box sx={{ pt: 2 }}>
             <Button
               variant="outlined"
@@ -417,7 +420,7 @@ function Documents() {
                 type="file"
                 hidden
                 onChange={handleFileChange}
-                accept=".pdf, .doc, .docx, .jpg, .jpef, .png"
+                accept=".pdf, .doc, .docx, .jpg, .jpeg, .png"
               />
             </Button>
 

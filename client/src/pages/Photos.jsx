@@ -39,6 +39,8 @@ function Photos() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const allowedTypes = ["image/jpeg", "image/png"];
+
   const [uploadData, setUploadData] = useState({
     file: null,
     name: "",
@@ -46,6 +48,17 @@ function Photos() {
     tags: "",
     albumId: "",
   });
+
+  const truncateFileName = (filename, maxLength = 30) => {
+    if (filename.length <= maxLength) return filename;
+    const extension = filename.split(".").pop();
+    const nameWithoutExt = filename.substring(0, filename.lastIndexOf("."));
+    const truncated = nameWithoutExt.substring(
+      0,
+      maxLength - extension.length - 4,
+    );
+    return `${truncated}...${extension}`;
+  };
 
   // Fetch photos
   const fetchPhotos = async () => {
@@ -83,6 +96,21 @@ function Photos() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (!allowedTypes.includes(file.type)) {
+        setError("Invalid file type. Only JPG and PNG allowed.");
+        e.target.value = "";
+        return;
+      }
+
+      // Validate file size immediately
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File size must be less than 5MB");
+        e.target.value = "";
+        return;
+      }
+
+      setError("");
+
       setUploadData({
         ...uploadData,
         file,
@@ -94,19 +122,6 @@ function Photos() {
   const handleUploadSubmit = async () => {
     if (!uploadData.file) {
       setError("Please select a file");
-      return;
-    }
-
-    // Validate file size
-    if (uploadData.file.size > 5 * 1024 * 1024) {
-      setError("File size must be less than 5MB");
-      return;
-    }
-
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png"];
-    if (!allowedTypes.includes(uploadData.file.type)) {
-      setError("Invalid file type. Only JPG and PNG allowed.");
       return;
     }
 
@@ -132,7 +147,7 @@ function Photos() {
         name: "",
         description: "",
         tags: "",
-        albumId: ""
+        albumId: "",
       });
       setUploadDialogOpen(false);
       // Refresh photos list
@@ -206,8 +221,23 @@ function Photos() {
       ) : (
         <Grid container spacing={3}>
           {photos.map((photo) => (
-            <Grid item xs={12} sm={6} md={4} key={photo._id}>
-              <Card>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              key={photo._id}
+              sx={{ display: "flex" }}
+            >
+              <Card
+                sx={{
+                  height: "100%",
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  minHeight: 400,
+                }}
+              >
                 <CardContent>
                   <Box
                     component="img"
@@ -215,14 +245,14 @@ function Photos() {
                     alt={photo.name}
                     sx={{
                       width: "100%",
-                      height: 200,
+                      aspectRatio: "1/1",
                       objectFit: "cover",
                       borderRadius: 1,
                       mb: 1,
                     }}
                   />
-                  <Typography variant="h6" noWrap>
-                    {photo.name}
+                  <Typography variant="h6">
+                    {truncateFileName(photo.name)}
                   </Typography>
 
                   {photo.description && (
