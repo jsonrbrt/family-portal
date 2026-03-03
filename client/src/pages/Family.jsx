@@ -21,6 +21,7 @@ import {
   PersonAdd as PersonAddIcon,
   AdminPanelSettings as AdminIcon,
   Person as PersonIcon,
+  Person,
 } from "@mui/icons-material";
 import Layout from "../components/Layout";
 import { useAuth } from "../context/useAuth";
@@ -94,6 +95,8 @@ function Family() {
             {family?.members?.length !== 1 ? "s" : ""}
           </Typography>
         </Paper>
+
+        {/* Join a Family */}
 
         {/* Invite code card */}
         <Paper sx={{ p: 3, mb: 3 }}>
